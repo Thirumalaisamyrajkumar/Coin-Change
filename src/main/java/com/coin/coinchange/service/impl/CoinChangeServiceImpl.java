@@ -5,6 +5,7 @@ import com.coin.coinchange.model.Coin;
 import com.coin.coinchange.request.AddCoinRequest;
 import com.coin.coinchange.response.GetChangeResponse;
 import com.coin.coinchange.service.CoinChangeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
+@Slf4j
 public class CoinChangeServiceImpl implements CoinChangeService {
     private List<Coin> availableCoins;
     @PostConstruct
@@ -36,11 +38,13 @@ public class CoinChangeServiceImpl implements CoinChangeService {
 
         Coin matchedCoin = availableCoins.stream().
                 filter(coin -> coin.getValue() == Integer.valueOf(request.getValue().substring(1))).findFirst().get();
+        log.info("Adding {} coins to available {}" , request.getQuantity(), matchedCoin.getName());
         matchedCoin.setCount(matchedCoin.getCount()+ request.getQuantity());
     }
 
     @Override
     public List<GetChangeResponse> getChange(int amount){
+        log.info("Getting change for amount : {}",amount);
         amount = amount*100;
         int totalChangeAmount = 0;
         for(Coin coin: availableCoins){
@@ -63,6 +67,7 @@ public class CoinChangeServiceImpl implements CoinChangeService {
                 response.add(changeResponse);
             }
         }
+        log.info("get change response : {}", response.toString());
         return response;
     }
 
